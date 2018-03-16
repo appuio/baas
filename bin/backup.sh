@@ -5,7 +5,6 @@ echo "executing restic backup"
 
 restic backup \
   --hostname oc1 \
-  --exclude-file /etc/restic/exclude \
   --one-file-system \
   /data && \
 echo "[INFO] listing available snapshots" && \
