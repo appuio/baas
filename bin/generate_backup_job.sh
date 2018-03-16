@@ -66,6 +66,8 @@ PVCS=$(oc -n ${NAMESPACE} get pvc -o=jsonpath='{range .items[*]}{.metadata.name}
 # If not PVCs, no backup will be made
 # TODO: This does skip non-PVC volumes like emptyDir
 # Should we add support for them?
+volumeMounts=""
+volumes=""
 if [ -z "$PVCS" ]; then
   echo "[INFO] No PVCs found - will not generate volume backup job"
 else
@@ -85,14 +87,16 @@ else
 
   # Create the backup job
   # TODO: How to cleanup old Jobs?
-  echo "$(get_jobtemplate ['volumes'])" | oc -n ${NAMESPACE} apply -f -
+  #echo "$(get_jobtemplate ['volumes'])" | oc -n ${NAMESPACE} apply -f -
 fi
 
 ### application backup job
+volumeMounts=""
+volumes=""
 PODS=$(oc -n ${NAMESPACE} get pods -l backup=true -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
 if [ -z "$PODS" ]; then
   echo "[INFO] No matching Pods found - will not generate app backup job"
 else
-  echo "[INFO] Found app specific backups $PODS"
-  echo "$(get_jobtemplate ['apps', '$PODS'])" | oc -n ${NAMESPACE} apply -f -
+  echo "[INFO] Found app specific backups ${PODS//[$'\t\r\n']}"
+  echo "$(get_jobtemplate '['apps', '$PODS']')" #| oc -n ${NAMESPACE} apply -f -
 fi
