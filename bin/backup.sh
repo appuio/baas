@@ -5,11 +5,11 @@ if [ -z ${NAMESPACE} ]; then
   exit 1
 fi
 
-echo "[INFO] - [${NAMESPACE}] - storing volumes ${VOLUMES}"
+echo "[INFO] - [${NAMESPACE}] - storing volumes"
 
 restic backup \
   --hostname ${NAMESPACE} \
-  --tag volumes
+  --tag volumes \
   /data && \
 
 echo "[INFO] - [${NAMESPACE}] - listing available snapshots" && \
