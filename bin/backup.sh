@@ -34,6 +34,11 @@ restic_postgres() {
 ##   --stdin-filename postgres
 }
 
+detect_app() {
+  echo "[INFO] pods to check $1 - connecting to them"
+  oc -n ${NAMESPACE} rsh $1 -- ls /var/lib
+}
+
 if [ -z ${NAMESPACE} ]; then
   echo "[FATAL] NAMESPACE is not defined"
   exit 1
@@ -48,10 +53,12 @@ case $1 in
   volumes)
     restic_volumes
     ;;
-  postgres)
-    restic_postgres
+  apps)
+    for pod in $2;
+      do detect_app $pod
+    done
     ;;
   *)
-    echo "unknown action"
+    echo "unknown action ${1}"
     exit 1
 esac
