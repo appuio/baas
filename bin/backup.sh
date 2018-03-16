@@ -3,6 +3,8 @@
 date
 echo "executing restic backup"
 
+restic init
+
 restic backup \
   --hostname oc1 \
   --one-file-system \
