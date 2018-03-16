@@ -1,16 +1,18 @@
 #!/bin/sh
 
-date
-echo "executing restic backup"
+if [ -z ${NAMESPACE} ]; then
+  echo "NAMESPACE is not defined"
+  exit 1
+fi
 
-restic init
+echo "executing restic backup in namespace ${NAMESPACE}"
 
 restic backup \
-  --hostname oc1 \
+  --hostname ${NAMESPACE} \
   --one-file-system \
   /data && \
 echo "[INFO] listing available snapshots" && \
 restic snapshots \
   --no-lock \
-  --host oc1 && \
+  --host ${NAMESPACE} && \
 echo curl -fsS --retry 3 https://hchk.io/
