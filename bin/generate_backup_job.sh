@@ -1,12 +1,18 @@
 #!/bin/sh
 
+# Get list of PVCs in configured namespace
+# TODO: filter on annotation
 PVCS=$(oc -n ${NAMESPACE} get pvc -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
 
+# If not PVCs, no backup will be made
+# TODO: This does skip non-PVC volumes like emptyDir
+# Should we add support for them?
 if [ -z "$PVCS" ]; then
  echo "[FATAL] No PVCs found"
  exit 1
 fi
 
+# Collect all PVCs and prepare for adding as mount
 volumeMounts="volumeMounts:"
 volumes="volumes:"
 for pvc in $PVCS; do
@@ -20,6 +26,10 @@ for pvc in $PVCS; do
              claimName: ${pvc}"
 done
 
+echo "[INFO] - [${NAMESPACE}] - generating backup job"
+
+# Create the backup job
+# TODO: How to cleanup old Jobs?
 oc -n ${NAMESPACE} apply -f - <<EOF
 apiVersion: batch/v1
 kind: Job
@@ -37,6 +47,8 @@ spec:
           image: 172.30.1.1:5000/myproject/baas:latest
           command:
             - backup.sh
+          args:
+            - volumes
           env:
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
