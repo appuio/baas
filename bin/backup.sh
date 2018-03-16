@@ -7,8 +7,6 @@ fi
 
 echo "[INFO] - [${NAMESPACE}] - storing volumes"
 
-PVCS=$(oc -n ${NAMESPACE} get pvc -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
-
 restic backup \
   --hostname ${NAMESPACE} \
   --tag volumes \
