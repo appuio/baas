@@ -5,11 +5,17 @@ if [ -z ${NAMESPACE} ]; then
   exit 1
 fi
 
+if [ -z ${POD_NAME} ]; then
+  echo "[FATAL] POD_NAME is not defined"
+  exit 1
+fi
+
 echo "[INFO] - [${NAMESPACE}] - storing volumes"
 
 restic backup \
   --hostname ${NAMESPACE} \
   --tag volumes \
+  --tag ${POD_NAME} \
   /data && \
 
 echo "[INFO] - [${NAMESPACE}] - listing available snapshots" && \
@@ -27,6 +33,7 @@ echo "[INFO] - [${NAMESPACE}] - storing databases"
 # Connect to them using oc rsh and stdout / stdin redirection
 ## restic backup \
 ##   --hostname ${NAMESPACE} \
-##   --tag postgres
+##   --tag postgres \
+##   --tag ${POD_NAME} \
 ##   --stdin \
 ##   --stdin-filename postgres
