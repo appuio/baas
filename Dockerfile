@@ -29,14 +29,16 @@ RUN curl -O -s -L https://github.com/openshift/origin/releases/download/v${OC_VE
 
 # Install Go
 # TODO: Make image smaller by using multistage builds
-RUN yum -y -q -e 0 install git && yum clean all && \
-    curl -O -s -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz >/dev/null && \
+RUN curl -O -s -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz >/dev/null && \
     echo "${GO_SHA} go${GO_VERSION}.linux-amd64.tar.gz" | sha256sum -c - && \
     tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
-    rm go${GO_VERSION}.linux-amd64.tar.gz && \
-    go get -u github.com/golang/dep/cmd/dep
+    rm go${GO_VERSION}.linux-amd64.tar.gz
 
-COPY ./ /go
+COPY ./ /go/src/github.com/appuio/baas
 
 # Build and install baas
-RUN dep ensure && go build -o baas main.go
+WORKDIR /go/src/github.com/appuio/baas
+RUN go build -o /usr/local/bin/baas main.go
+
+ENTRYPOINT [ "/usr/local/bin/baas" ]
+CMD [ "--help" ]
