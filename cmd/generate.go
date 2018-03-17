@@ -68,6 +68,45 @@ func formatAsDate(t time.Time) string {
 	return fmt.Sprintf("%d%d%d%d%d%d", year, month, day, hour, minute, second)
 }
 
+func cleanupJob(keep int) {
+	fmt.Println("cleanup called for namespace", namespace)
+
+	ocCmd := exec.Command("oc", "-n", namespace, "get", "jobs", "-o", "name", "-l", "baas=backupjob")
+	ocOut, err := ocCmd.Output()
+	if err != nil {
+		panic(err)
+	}
+
+	// collect Jobs into a slice
+	var jobs []string
+
+	// read through every line of the output
+	scanner := bufio.NewScanner(strings.NewReader(string(ocOut)))
+	for scanner.Scan() {
+		// add name to slice
+		jobs = append(jobs, scanner.Text())
+	}
+
+	// if more than configured jobs found - delete old onews
+	if len(jobs) > keep {
+		fmt.Printf("More than %d backup jobs found %d - deleting oldest\n", keep, len(jobs))
+		for len(jobs) > keep {
+			j := jobs[0]
+			jobs = jobs[1:]
+			fmt.Println("Deleting", j)
+
+			ocCmd := exec.Command("oc", "-n", namespace, "delete", j)
+			_, err := ocCmd.Output()
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+	for _, v := range jobs {
+		fmt.Println("Keeping", v)
+	}
+}
+
 func generateJob(cmd *cobra.Command, args []string) {
 	namespace := cmd.Flag("namespace").Value.String()
 	fmt.Println("generate called for namespace", namespace)
@@ -128,5 +167,7 @@ func generateJob(cmd *cobra.Command, args []string) {
 			fmt.Fprintln(os.Stdout)
 		}
 
+		fmt.Println("cleaning up jobs")
+		cleanupJob(2)
 	}
 }

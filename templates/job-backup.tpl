@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: Job 
 metadata:
   name: baas-{{ .Date | formatAsDate }}
+  labels:
+    baas: backupjob
 spec:
   parallelism: 1
   completions: 1
