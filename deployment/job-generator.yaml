@@ -12,8 +12,9 @@ spec:
       containers:
         - name: baas
           image: 172.30.1.1:5000/myproject/baas:latest
-          command:
-            - generate_backup_job.sh
+          args:
+            - job
+            - generate
           env:
           - name: NAMESPACE
             valueFrom:
