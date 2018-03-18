@@ -64,7 +64,11 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.baas.yaml)")
-	rootCmd.PersistentFlags().StringVar(&namespace, "namespace", "default", "Kubernetes namespace")
+	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "Kubernetes namespace")
+	viper.BindPFlag("namespace", rootCmd.PersistentFlags().Lookup("namespace"))
+	viper.SetDefault("namespace", "default2")
+
+	// rootCmd.MarkFlagRequired("namespace")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
