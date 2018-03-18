@@ -33,6 +33,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // jobCmd represents the job command
@@ -48,6 +49,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("job called")
 		fmt.Println(namespace)
+		fmt.Println(viper.GetString("namespace"))
 	},
 }
 
